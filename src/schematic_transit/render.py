@@ -12,6 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.lines import Line2D
+from matplotlib.transforms import Bbox
 
 from .layout import Layout
 from .overlap import find_shared_segments
@@ -67,6 +68,95 @@ def _draw_shared_segments(ax, fig, layout: Layout) -> None:
                     solid_capstyle="round", solid_joinstyle="round", zorder=5)
 
 
+def _place_labels(ax, fig, layout: Layout, memberships: dict) -> list:
+    """Place labels in display space, keeping text clear of other labels and stops.
+
+    The map's data units can have very different on-screen sizes depending on
+    figure size. Collision checks therefore use the actual output renderer.
+    Explicit label offsets are tried first, then nearby alternatives.
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    scale = fig.dpi / 72
+    stop_points = {name: ax.transData.transform(point)
+                   for name, point in layout.stations.items()}
+    stop_boxes = {name: Bbox.from_bounds(px - 5 * scale, py - 5 * scale,
+                                         10 * scale, 10 * scale)
+                  for name, (px, py) in stop_points.items()}
+    labels = []
+    occupied = []
+
+    def density(name):
+        x, y = stop_points[name]
+        nearest = min((hypot(x - px, y - py) for other, (px, py) in stop_points.items()
+                       if other != name), default=float("inf"))
+        return (nearest, -len(memberships[name]), name)
+
+    for name in sorted(layout.stations, key=density):
+        x, y = layout.stations[name]
+        interchange = len(memberships[name]) > 1
+        line, index = memberships[name][0]
+        label = layout.network.labels.get(name, name)
+        artist = ax.text(x, y, label, fontsize=7.5 if not interchange else 8.5,
+                         fontweight="bold" if interchange else "normal",
+                         color="#26343a", zorder=12,
+                         bbox={"facecolor": "#f7f8f5", "edgecolor": "none", "alpha": 0.9, "pad": 0.4})
+        if name in layout.network.label_offsets:
+            dx, dy = layout.network.label_offsets[name]
+            px, py = stop_points[name]
+            target = ax.transData.transform((x + dx, y + dy))
+            preferred = ((target[0] - px) / scale, (target[1] - py) / scale)
+        elif interchange:
+            preferred = (9, 9)
+        else:
+            route = line.stations
+            before = layout.stations[route[max(0, index - 1)]]
+            after = layout.stations[route[min(len(route) - 1, index + 1)]]
+            tangent = (after[0] - before[0], after[1] - before[1])
+            length = hypot(*tangent) or 1
+            side = 1 if index % 2 == 0 else -1
+            preferred = (-side * tangent[1] / length * 9,
+                         side * tangent[0] / length * 9)
+
+        directions = [preferred]
+        for radius in (9, 16, 25, 36, 50, 68, 90, 120):
+            directions.extend((sx * radius, sy * radius) for sx, sy in
+                              ((1, 0), (-1, 0), (0, 1), (0, -1),
+                               (0.72, 0.72), (-0.72, 0.72),
+                               (0.72, -0.72), (-0.72, -0.72)))
+        origin = stop_points[name]
+        best = None
+        for dx, dy in directions:
+            target = (origin[0] + dx * scale, origin[1] + dy * scale)
+            artist.set_position(ax.transData.inverted().transform(target))
+            artist.set_ha("left" if dx > 1 else "right" if dx < -1 else "center")
+            artist.set_va("bottom" if dy > 1 else "top" if dy < -1 else "center")
+            box = artist.get_window_extent(renderer).padded(3 * scale)
+            if not ax.bbox.contains(box.x0, box.y0) or not ax.bbox.contains(box.x1, box.y1):
+                continue
+            if any(box.overlaps(other) for other in occupied):
+                continue
+            if any(box.overlaps(other) for other_name, other in stop_boxes.items()
+                   if other_name != name):
+                continue
+            best = (dx, dy, box)
+            break
+        if best is None:
+            artist.remove()
+            raise ValueError(f"No collision-free label position for {name}; increase figsize")
+        dx, dy, box = best
+        occupied.append(box)
+        if hypot(dx, dy) > 25:
+            # A subtle leader keeps distant labels associated with their stop.
+            edge = (max(box.x0, min(origin[0], box.x1)),
+                    max(box.y0, min(origin[1], box.y1)))
+            start, end = ax.transData.inverted().transform((origin, edge))
+            ax.plot((start[0], end[0]), (start[1], end[1]),
+                    color="#aab2b2", linewidth=0.6, zorder=10)
+        labels.append(artist)
+    return labels
+
+
 def render(layout: Layout, output: str | Path, formats: tuple[str, ...] = ("png", "svg", "pdf"),
            dpi: int = 150, figsize: tuple[float, float] = (40, 28)) -> dict[str, Path]:
     """Render a layout into one or more formats and return output paths.
@@ -110,24 +200,7 @@ def render(layout: Layout, output: str | Path, formats: tuple[str, ...] = ("png"
         else:
             ax.scatter(x, y, s=74, facecolors="white" if operating else "#f7f8f5",
                        edgecolors=color, linewidths=2.0, zorder=6)
-    for name, (x, y) in layout.stations.items():
-        line, index = memberships[name][0]
-        interchange = len(memberships[name]) > 1
-        if name in layout.network.label_offsets:
-            dx, dy = layout.network.label_offsets[name]
-        elif interchange:
-            dx, dy = 0.35, 0.8
-        elif line.id in {"1", "4", "bgl"}:
-            dx, dy = (0.7, 0.1) if index % 2 == 0 else (-0.7, -0.1)
-        else:
-            dx, dy = (0, 0.8) if index % 2 == 0 else (0, -0.8)
-        ha = "center" if dx == 0 else ("left" if dx > 0 else "right")
-        va = "center" if dy == 0 else ("bottom" if dy > 0 else "top")
-        label = layout.network.labels.get(name, name)
-        ax.text(x + dx, y + dy, label, fontsize=7.5 if not interchange else 8.5,
-                fontweight="bold" if interchange else "normal", ha=ha, va=va,
-                color="#26343a", zorder=12,
-                bbox={"facecolor": "#f7f8f5", "edgecolor": "none", "alpha": 0.82, "pad": 0.4})
+    _place_labels(ax, fig, layout, memberships)
     fig.text(0.055, 0.965, layout.network.title, ha="left", va="top",
              fontsize=30, fontweight="bold", color="#1e313a")
     subtitle = "SCHEMATIC TRANSIT MAP"

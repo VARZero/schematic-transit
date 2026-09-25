@@ -72,6 +72,6 @@ A bend can occur between two station markers. If you draw the layout yourself, u
 
 When two or more routes share the same straight interval, the [overlap detector](../src/schematic_transit/overlap.py) identifies it. The renderer widens that interval into parallel colored stripes and tapers them back to the route centerline at each end. See the [three-line example](../examples/overlap.json).
 
-The current version does **not** globally optimize line crossings or label collisions. Adjust routes with `positions` and `anchors`, and labels with `label_offsets`. The [model validator](../src/schematic_transit/model.py) reports invalid statuses, duplicate line IDs, and shared stations without global coordinates.
+Labels are placed against their actual rendered bounds so they do not overlap other labels or station markers. A `label_offsets` position is tried first; if it collides, the renderer finds a nearby position. If there is insufficient room, increase the figure size. Line crossings are not globally optimized. Use `positions` and `anchors` to fix station locations and shape routes. The [model validator](../src/schematic_transit/model.py) reports invalid statuses, duplicate line IDs, and shared stations without global coordinates.
 
 [← English home](../README.en.md) · [Installation and usage →](installation-en.md)

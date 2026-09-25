@@ -39,6 +39,7 @@ Choose formats or PNG resolution explicitly:
 ```sh
 schematic-transit data/network.json --output exports/my_map --formats svg pdf
 schematic-transit data/network.json --output exports/my_map --formats png --dpi 200
+schematic-transit data/network.json --output exports/my_map --figsize 48 32
 ```
 
 ## 3. Create a new map
@@ -70,6 +71,6 @@ The [public API](../src/schematic_transit/__init__.py) exports `Network`, `Line`
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-The [tests](../tests/test_layout.py) cover octilinear segments, bend order, and shared-station anchor validation.
+The [tests](../tests/test_layout.py) cover octilinear segments, bend order, shared-station anchor validation, and label collisions.
 
 [← English home](../README.en.md) · [JSON data format →](data-format-en.md)

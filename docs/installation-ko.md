@@ -39,6 +39,7 @@ schematic-transit data/network.json --output exports/busan_gimhae_ulsan_map
 ```sh
 schematic-transit data/network.json --output exports/my_map --formats svg pdf
 schematic-transit data/network.json --output exports/my_map --formats png --dpi 200
+schematic-transit data/network.json --output exports/my_map --figsize 48 32
 ```
 
 ## 3. 다른 노선도로 시작
@@ -70,6 +71,6 @@ print(files["svg"])
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-[테스트 코드](../tests/test_layout.py)는 0°·45°·90° 경로 생성, 꺾임 방향, 환승역 좌표 검증을 확인합니다.
+[테스트 코드](../tests/test_layout.py)는 0°·45°·90° 경로 생성, 꺾임 방향, 환승역 좌표와 역명 겹침을 확인합니다.
 
 [← 첫 화면](../README.md) · [데이터 구조 →](data-format-ko.md)

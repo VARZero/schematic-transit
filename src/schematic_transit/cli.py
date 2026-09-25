@@ -14,9 +14,14 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("map"), help="Output filename stem")
     parser.add_argument("--formats", nargs="+", choices=("png", "svg", "pdf"), default=("png", "svg", "pdf"))
     parser.add_argument("--dpi", type=int, default=150)
+    parser.add_argument("--figsize", nargs=2, type=float, metavar=("WIDTH", "HEIGHT"),
+                        default=(40, 28), help="Figure size in inches (default: 40 28)")
     args = parser.parse_args()
+    if any(size <= 0 for size in args.figsize):
+        parser.error("--figsize values must be positive")
     layout = OctilinearLayout().build(load_network(args.data))
-    for path in render(layout, args.output, tuple(args.formats), args.dpi).values():
+    for path in render(layout, args.output, tuple(args.formats), args.dpi,
+                       tuple(args.figsize)).values():
         print(path)
 
 
