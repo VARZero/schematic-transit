@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "schematic-transit"
+version = "0.1.0"
+description = "Data-driven octilinear transit maps with Matplotlib"
+requires-python = ">=3.10"
+dependencies = ["matplotlib>=3.7"]
+
+[project.scripts]
+schematic-transit = "schematic_transit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

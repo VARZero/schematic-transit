@@ -1,0 +1,8 @@
+{
+  "title": "Mini metro example",
+  "positions": {"A": [0, 0], "C": [8, 4], "E": [8, 8]},
+  "lines": [
+    {"id": "red", "name": "Red", "status": "open", "color": "#d84a4a", "stations": ["A", "B", "C"]},
+    {"id": "blue", "name": "Blue", "status": "planned", "color": "#3478ba", "stations": ["C", "D", "E"]}
+  ]
+}

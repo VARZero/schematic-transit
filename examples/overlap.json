@@ -1,0 +1,14 @@
+{
+  "title": "Three lines on one corridor",
+  "footer": "Coincident segments are drawn as a wider three-color bundle",
+  "positions": {
+    "A": [0, 0], "B": [4, 0], "C": [12, 0], "D": [16, 0],
+    "E": [4, 4], "F": [12, 4]
+  },
+  "label_offsets": {"E": [0.5, 0.6], "F": [0.5, 0.6]},
+  "lines": [
+    {"id": "red", "name": "Red", "status": "open", "color": "#d84a4a", "stations": ["A", "D"]},
+    {"id": "blue", "name": "Blue", "status": "open", "color": "#3478ba", "stations": ["C", "B"]},
+    {"id": "green", "name": "Green", "status": "open", "color": "#42a260", "stations": ["E", "B", "C", "F"]}
+  ]
+}
