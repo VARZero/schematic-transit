@@ -2,9 +2,9 @@
 
 [English](README.en.md) · **한국어**
 
-네.. 심심해서 진짜 바이브코딩으로 해서 만들어 봤습니다.. 
+네.. 심심해서 진짜 바이브코딩으로 해서 만들어 봤습니다..  
 모든 부분을 다 만드는 사람이 밑바닥도 설계 안하고 만드니 기분이 이상하네요..  
-노선 데이터로 철도 노선도를 만드는 파이썬 라이브러리입니다.    
+노선 데이터로 철도 노선도를 만드는 파이썬 라이브러리입니다.  
 
 JSON 노선 데이터로 0°·45°·90° 선분의 철도 노선도를 만드는 Python 라이브러리입니다. 역명 전체 표시, 환승역 강조, 운행·계획·구상 노선 구분, PNG·SVG·PDF 출력을 지원합니다. 여러 노선이 같은 선분을 지나면 그 구간을 넓혀 각 노선 색을 나란히 표시합니다.
 
@@ -36,6 +36,6 @@ schematic-transit data/network.json --output exports/busan_gimhae_ulsan_map
 
 ## 부산권 예제 범위
 
-예제 데이터에는 부산 1~4호선, 부산김해경전철, 태화강까지의 동해선 광역전철과 계획 노선인 양산선·부산 5호선 사상~하단 구간·BuTX가 들어 있습니다. 경전–동해 연결은 **직결 운행이 확정된 노선이 아닌 지도용 구상**으로 표시했습니다. 계획 노선의 역명과 선형은 바뀔 수 있으며, 이 그림은 실제 거리와 일치하지 않습니다.
+예제 데이터에는 부산 1-4호선, 부산김해경전철, 태화강까지의 동해선 광역전철과 계획 노선인 양산선·부산 5호선 사상-하단 구간·BuTX가 들어 있습니다. 경전–동해 연결은 **직결 운행이 확정된 노선이 아닌 지도용 구상**으로 표시했습니다. 계획 노선의 역명과 선형은 바뀔 수 있으며, 이 그림은 실제 거리와 일치하지 않습니다.
 
 자료 확인: [부산교통공사 운행 노선](https://data.humetro.busan.kr/homepage/default/page/subLocation.do?menu_no=10010101), [부산김해경전철](https://www.bglrt.com/00012.web), [코레일 동해선](https://info.korail.com/info/contents.do?key=863), [양산선 역 목록](https://www.busan.go.kr/news/totalnews01/view?curPage=1&dataNo=72491), [사상~하단선 공고](https://www.busan.go.kr/nbgosi/view?curPage=2&gosiGbn=A&sno=77896), [BuTX 계획](https://www.busan.go.kr/mayor/briefing/1581500), [부전~마산선 현황](https://www.busan.go.kr/nbtnewsBU/1750969?curPage=9&srchBeginDt=&srchEndDt=&srchKey=&srchText=) (확인일: 2026-09-26).
